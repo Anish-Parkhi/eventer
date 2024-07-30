@@ -8,7 +8,7 @@ const user = require('../models/user');
 const admin = require('../models/admin');
 
 // endpoint to create a new event
-// take the created by name from the admin jwt
+// take the created by name from the admin jwt -> by admin
 eventRouter.post('/', adminMiddleware, async (req, res) => {
   try {
     const {
@@ -47,7 +47,8 @@ eventRouter.post('/', adminMiddleware, async (req, res) => {
   }
 });
 
-// route to get all the events
+
+// route to get all the events -> by user
 eventRouter.get('/', userAuthMiddleware, async (req, res) => {
   const events = await event.find();
   if (!events) {
@@ -56,7 +57,7 @@ eventRouter.get('/', userAuthMiddleware, async (req, res) => {
   return res.json({ events });
 });
 
-// fetch all the events for which the user has registerd
+// fetch all the events for which the user has registerd -> by user
 
 eventRouter.get('/registeredEvents', userAuthMiddleware, async (req, res) => {
   const email = req.body.email;
@@ -71,7 +72,7 @@ eventRouter.get('/registeredEvents', userAuthMiddleware, async (req, res) => {
   return res.json({ registeredEvents });
 });
 
-// route to get an event by its id;
+// route to get an event by its id; -> by user
 
 eventRouter.get('/:id', userAuthMiddleware, async (req, res) => {
   try {
@@ -90,7 +91,7 @@ eventRouter.get('/:id', userAuthMiddleware, async (req, res) => {
 });
 
 
-//register for the event
+//register for the event -> By user
 eventRouter.post('/register', userAuthMiddleware, async (req, res) => {
   try {
     const email = req.body.email;

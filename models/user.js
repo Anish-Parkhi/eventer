@@ -15,6 +15,21 @@ const userSchema = mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: 'eventRegistration',
   },
+  fullName: {
+    type: String,
+  },
+  registrationNumber: {
+    type: String,
+  },
+  yearOfStudy: {
+    type: Number,
+  },
+  department: {
+    type: String,
+  },
+  section: {
+    type: String,
+  },
 });
 
 const user = mongoose.model('user', userSchema);
