@@ -2,7 +2,48 @@ const express = require('express');
 const admin = require('../models/admin');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const event = require('../models/event');
+const eventRegistration = require('../models/eventRegistration');
 const adminRotuer = express.Router();
+
+// endpoint to create a new event
+
+adminRotuer.post('/', adminMiddleware, async (req, res) => {
+  try {
+    const {
+      eventName,
+      description,
+      venue,
+      speakerName,
+      extraLink,
+      startDate,
+      endDate,
+    } = req.body;
+    if (!eventName || !venue || !speakerName || !startDate || !endDate) {
+      return res.json({ msg: 'missing required parameters' });
+    }
+    const createdBy = req.body.email;
+    const clubInfo = await admin.findOne({ email: createdBy });
+    const newEvent = new event({
+      name: eventName,
+      description,
+      venue,
+      clubName: clubInfo.clubName,
+      speakerName,
+      extraLink,
+      startDate,
+      endDate,
+      createdBy,
+    });
+    const response = await newEvent.save();
+    if (!response) {
+      return res.json({ msg: 'Event creation failed' });
+    }
+    return res.json({ msg: 'Event created successfully' });
+  } catch (error) {
+    console.log(error);
+    return res.json({ error });
+  }
+});
 
 // route to find all the events hosted by a particular club
 adminRotuer.get('/events', adminMiddleware, async (req, res) => {
@@ -56,6 +97,23 @@ adminRotuer.delete('/event/:eventId', async (req, res) => {
     return res.json({ msg: 'Event deleted successfully' });
   } catch (error) {
     res.status(500).json({ error });
+  }
+});
+
+//route to get info of all the participants which are registered to a particular event
+
+adminRotuer.get('/:id/registrations', adminMiddleware, async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    console.log(eventId)
+    const registrations = await eventRegistration.find({ event: eventId }).populate('participant');
+    if(!registrations){
+      return res.json({msg:"No regisrations found"})
+    }
+    return res.json({registrations})
+  } catch (error) {
+    console.log(error);
+    res.json({ error });
   }
 });
 

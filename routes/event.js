@@ -7,47 +7,6 @@ const eventRegistration = require('../models/eventRegistration');
 const user = require('../models/user');
 const admin = require('../models/admin');
 
-// endpoint to create a new event
-// take the created by name from the admin jwt -> by admin
-eventRouter.post('/', adminMiddleware, async (req, res) => {
-  try {
-    const {
-      eventName,
-      description,
-      venue,
-      speakerName,
-      extraLink,
-      startDate,
-      endDate,
-    } = req.body;
-    if (!eventName || !venue || !speakerName || !startDate || !endDate) {
-      return res.json({ msg: 'missing required parameters' });
-    }
-    const createdBy = req.body.email;
-    const clubInfo = await admin.findOne({ email: createdBy });
-    const newEvent = new event({
-      name: eventName,
-      description,
-      venue,
-      clubName: clubInfo.clubName,
-      speakerName,
-      extraLink,
-      startDate,
-      endDate,
-      createdBy,
-    });
-    const response = await newEvent.save();
-    if (!response) {
-      return res.json({ msg: 'Event creation failed' });
-    }
-    return res.json({ msg: 'Event created successfully' });
-  } catch (error) {
-    console.log(error);
-    return res.json({ error });
-  }
-});
-
-
 // route to get all the events -> by user
 eventRouter.get('/', userAuthMiddleware, async (req, res) => {
   const events = await event.find();
@@ -57,8 +16,8 @@ eventRouter.get('/', userAuthMiddleware, async (req, res) => {
   return res.json({ events });
 });
 
-// fetch all the events for which the user has registerd -> by user
 
+// fetch all the events for which the user has registerd -> by user
 eventRouter.get('/registeredEvents', userAuthMiddleware, async (req, res) => {
   const email = req.body.email;
   const userId = await user.findOne({ email });
@@ -73,7 +32,6 @@ eventRouter.get('/registeredEvents', userAuthMiddleware, async (req, res) => {
 });
 
 // route to get an event by its id; -> by user
-
 eventRouter.get('/:id', userAuthMiddleware, async (req, res) => {
   try {
     const eventId = req.params.id;
